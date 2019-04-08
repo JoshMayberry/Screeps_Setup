@@ -46,6 +46,10 @@ class CreepManager extends ProfiledClass {
      */
     static getCreepClassByObject(creep) {
         let role = creep.memory.role;
+        if (!role) {
+            role = "harvester";
+            creep.memory.role = role;
+        }
         if (!(role in this.catalogue_creepClasses)) {
             throw new Error("Could not find class for creep with role " + role);
         }

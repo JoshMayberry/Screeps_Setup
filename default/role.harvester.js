@@ -8,16 +8,6 @@ class HarvesterRole extends CreepClass {
      * See: https://www.digitalocean.com/community/tutorials/understanding-classes-in-javascript#defining-methods
      */
     main() {
-        switch (this.creep.memory.state) {
-            case constants.ACTIVITY_HARVEST:
-                this.state_harvest();
-                break;
-            case constants.ACTIVITY_DEPOSIT:
-            default:
-                this.state_deposit();
-        }
-
-        this.creep.memory.state = contants.ACTIVITY_HARVEST;
         if (this.creep.carry.energy < this.creep.carryCapacity) {
             var sources = this.creep.room.find(FIND_SOURCES);
             if (this.creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
@@ -39,14 +29,62 @@ class HarvesterRole extends CreepClass {
             }
         }
     }
+    //main() {
+    //    switch (this.creep.memory.state) {
+    //        case constants.ACTIVITY_DEPOSIT:
+    //            this.deposit()
+    //            break;
+    //        case constants.ACTIVITY_HARVEST:
+    //            this.harvest()
+    //            break;
+    //        default:
+    //            this.start_harvest();
+    //    }
+    //}
 
-    state_harvest() {
+    //endState() {
+    //    switch (this.creep.memory.state) {
+    //        case constants.ACTIVITY_DEPOSIT:
+    //            this.end_desposit()
+    //            break;
+    //        case constants.ACTIVITY_HARVEST:
+    //            this.end_harvest()
+    //            break;
+    //    }
+    //    this.creep.memory.destination = null;
+    //}
 
-    }
+    ///**
+    // * Changes state building state.
+    // */
+    //start_deposit() {
+    //    this.endState();
+    //    this.creep.memory.state = constants.ACTIVITY_DEPOSIT;
+    //    this.creep.say('deposit');
+    //}
 
-    state_deposit() {
+    //end_desposit() { }
 
-    }
+    ///**
+    // * Deposits the energy.
+    // */
+    //deposit() {
+    //    if (this.creep.carry.energy <= 0) {
+    //        return this.start_harvest();
+    //    }
+
+    //    let destination = this.getDestination(FIND_CONSTRUCTION_SITES);
+
+    //    switch (this.creep.build(destination)) {
+    //        case ERR_NOT_IN_RANGE:
+    //            this.moveTo(destination, constants.PATH_BUILD)
+    //            break;
+    //        case OK:
+    //            break;
+    //        default:
+    //            this.creep.memory.destination = null;
+    //    }
+    //}
 }
 
 module.exports = HarvesterRole;
