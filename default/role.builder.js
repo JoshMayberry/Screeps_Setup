@@ -1,37 +1,62 @@
 ﻿/// <reference path="C:/Users/Kade/source/repos/Screeps-Typescript-Declarations/dist/screeps.d.ts"/>
 let CreepClass = require('class.creep');
+var constants = require('constants');
 
 class BuilderRole extends CreepClass {
 
     /**
      * See: https://www.digitalocean.com/community/tutorials/understanding-classes-in-javascript#defining-methods
      */
-    act() {
-        console.log("Builder");
-        if (this.creep.memory.building && this.creep.carry.energy == 0) {
-            this.creep.memory.building = false;
-            this.creep.say('🔄 harvest');
+    main() {
+        switch (this.creep.memory.state) {
+            case constants.ACTIVITY_BUILD:
+                this.build()
+                break;
+            case constants.ACTIVITY_HARVEST:
+                this.harvest()
+                break;
+            default:
+                this.start_harvest();
         }
-        if (!this.creep.memory.building && this.creep.carry.energy == this.creep.carryCapacity) {
-            this.creep.memory.building = true;
-            this.creep.say('🚧 build');
+    }
+
+    start_harvest() {
+        this.creep.memory.state = constants.ACTIVITY_HARVEST;
+        this.creep.say('🔄 harvest');
+    }
+
+    harvest() {
+        if (this.creep.carry.energy >= this.creep.carryCapacity) {
+            return this.start_build();
         }
 
-        if (this.creep.memory.building) {
-            var targets = this.creep.room.find(FIND_CONSTRUCTION_SITES);
-            if (targets.length) {
-                if (this.creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                    this.creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
-                }
-            }
+        var sources = this.creep.room.find(FIND_SOURCES);
+        if (this.creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+            this.creep.moveTo(sources[0], { visualizePathStyle: { stroke: constants.PATH_HARVEST } });
         }
-        else {
-            var sources = this.creep.room.find(FIND_SOURCES);
-            if (this.creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                this.creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+    }
+
+    end_harvest() { }
+
+    start_build() {
+        this.creep.memory.state = constants.ACTIVITY_BUILD;
+        this.creep.say('🚧 build');
+    }
+
+    build() {
+        if (this.creep.carry.energy <= 0) {
+            return this.start_harvest();
+        }
+
+        var targets = this.creep.room.find(FIND_CONSTRUCTION_SITES);
+        if (targets.length) {
+            if (this.creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
+                this.creep.moveTo(targets[0], { visualizePathStyle: { stroke: constants.PATH_BUILD } });
             }
         }
     }
+
+    end_build() { }
 }
 
 module.exports = BuilderRole;

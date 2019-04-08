@@ -12,18 +12,12 @@
  * Use: https://marketplace.visualstudio.com/items?itemName=munyabe.ToggleComment
  **/
 
-var spawner = require('spawner');
-var CreepHelper = require("helper.creep");
+var CreepManager = require("manager.creep");
 
 module.exports.loop = function () {
-    spawner.spawn_creeps();
 
-    // Iterate through all the friendly creeps and have them take an action
     try {
-        for (let creepName in Game.creeps) {
-            let creep = CreepHelper.createCreepByName(creepName);
-            creep.act();
-        }
+        CreepManager.main();
     } catch (error) {
         console.log("Error: " + error + "\n" + error.stack);
     }

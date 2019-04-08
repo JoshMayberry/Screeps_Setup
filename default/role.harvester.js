@@ -1,16 +1,23 @@
 /// <reference path="C:/Users/Kade/source/repos/Screeps-Typescript-Declarations/dist/screeps.d.ts"/>
 let CreepClass = require('class.creep');
-
-const ACTIVITY_HARVEST = 0;
-const ACTIVITY_DEPOSIT = 1;
+let constants = require('constants');
 
 class HarvesterRole extends CreepClass {
 
     /**
      * See: https://www.digitalocean.com/community/tutorials/understanding-classes-in-javascript#defining-methods
      */
-    act() {
-        console.log("Harvester: " + this.creep);
+    main() {
+        switch (this.creep.memory.state) {
+            case constants.ACTIVITY_HARVEST:
+                this.state_harvest();
+                break;
+            case constants.ACTIVITY_DEPOSIT:
+            default:
+                this.state_deposit();
+        }
+
+        this.creep.memory.state = contants.ACTIVITY_HARVEST;
         if (this.creep.carry.energy < this.creep.carryCapacity) {
             var sources = this.creep.room.find(FIND_SOURCES);
             if (this.creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
@@ -31,6 +38,14 @@ class HarvesterRole extends CreepClass {
                 }
             }
         }
+    }
+
+    state_harvest() {
+
+    }
+
+    state_deposit() {
+
     }
 }
 

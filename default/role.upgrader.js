@@ -1,13 +1,13 @@
 ﻿/// <reference path="C:/Users/Kade/source/repos/Screeps-Typescript-Declarations/dist/screeps.d.ts"/>
 let CreepClass = require('class.creep');
+let constants = require('constants');
 
 class UpgraderRole extends CreepClass {
 
     /**
      * See: https://www.digitalocean.com/community/tutorials/understanding-classes-in-javascript#defining-methods
      */
-    act() {
-        console.log("Upgrader");
+    main() {
         if (this.creep.memory.upgrading && this.creep.carry.energy == 0) {
             this.creep.memory.upgrading = false;
             this.creep.say('🔄 harvest');
@@ -28,6 +28,10 @@ class UpgraderRole extends CreepClass {
                 this.creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
             }
         }
+    }
+
+    startHarvest() {
+        this.creep.say('🔄 harvest');
     }
 }
 

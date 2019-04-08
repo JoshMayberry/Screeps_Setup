@@ -7,6 +7,7 @@ var ActiveClass = require('class.active');
  * See: https://github.com/Garethp/Screeps/blob/master/role_prototype.js
  */
 class CreepClass extends ActiveClass {
+
     constructor(creep) {
         super();
         this.creep = creep;
