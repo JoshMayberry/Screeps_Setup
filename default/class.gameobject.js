@@ -1,3 +1,4 @@
+/// <reference path="C:/Users/Kade/source/repos/Screeps-Typescript-Declarations/dist/screeps.d.ts"/>
 var ProfiledClass = require('class.profiled');
 
 /**

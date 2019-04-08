@@ -1,3 +1,4 @@
+/// <reference path="C:/Users/Kade/source/repos/Screeps-Typescript-Declarations/dist/screeps.d.ts"/>
 /*
  * Base Operations
  */

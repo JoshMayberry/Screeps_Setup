@@ -27,3 +27,4 @@ default/ScreepsAutocomplete/
 Screeps/.vs/
 Screeps/packages/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0/.signature.p7s
 Screeps/packages/
+.sync

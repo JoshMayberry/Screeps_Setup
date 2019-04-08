@@ -1,7 +1,9 @@
+/// <reference path="C:/Users/Kade/source/repos/Screeps-Typescript-Declarations/dist/screeps.d.ts"/>
 var ProfiledClass = require('class.profiled');
 
 /**
   * Manages Creeps.
+  * See: https://github.com/Garethp/Screeps/blob/master/roleManager.js
   * Use: https://github.com/dmleach/scroops/blob/master/helper.creep.js
   */
 class CreepHelper extends ProfiledClass {
@@ -11,9 +13,9 @@ class CreepHelper extends ProfiledClass {
      */
     static get catalogue_creepClasses() {
         return {
-            builder: 'class.builder',
-            harvester: 'class.harvester',
-            upgrader: 'class.upgrader',
+            builder: 'role.builder',
+            harvester: 'role.harvester',
+            upgrader: 'role.upgrader',
         }
     }
 
