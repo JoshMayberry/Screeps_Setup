@@ -12,13 +12,17 @@ class BuilderRole extends CreepClass {
         this.creep.say('🔄 harvest');
     }
 
+    /**
+     * When there is no energy, harvest more.
+     */
     task_noEnergy() {
+        //console.log("@BuilderRole.task_noEnergy: " + this.creep.carry.energy);
         if (this.creep.carry.energy >= this.creep.carryCapacity) {
             return this.task_fullEnergyStart();
         }
 
         let destination = this.getDestination(FIND_SOURCES);
-
+        //console.log("@BuilderRole.task_noEnergy_2: " + destination + "; " + this.creep.harvest(destination));
         switch (this.creep.harvest(destination)) {
             case ERR_NOT_IN_RANGE:
                 this.moveTo(destination, constants.PATH_HARVEST)
@@ -26,7 +30,7 @@ class BuilderRole extends CreepClass {
             case OK:
                 break;
             default:
-                this.creep.memory.destination = null;
+                this.creep.memory.destinationId = null;
         }
     }
 
@@ -39,9 +43,10 @@ class BuilderRole extends CreepClass {
     }
 
     /**
-     * Builds a structure.
+     * When energy is full, build a structure.
      */
     task_fullEnergy() {
+        //console.log("@BuilderRole.task_fullEnergy: " + this.creep.carry.energy);
         if (this.creep.carry.energy <= 0) {
             return this.task_noEnergyStart();
         }
@@ -57,7 +62,6 @@ class BuilderRole extends CreepClass {
                 this.creep.memory.destinationId = null;
         }
     }
-
 }
 
 module.exports = BuilderRole;

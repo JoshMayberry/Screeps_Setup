@@ -75,12 +75,12 @@ class CreepManager extends ProfiledClass {
         //    console.log('Spawning new harvester: ' + newName);
         //    Game.spawns['Mother_Brain'].spawnCreep([WORK,CARRY,MOVE], newName, {memory: {role: 'harvester'}});
         //}
-        //else if(upgraders.length < 1) {
-        //    var newName = 'Upgrader_' + Game.time;
-        //    console.log('Spawning new upgrader: ' + newName);
-        //    Game.spawns['Mother_Brain'].spawnCreep([WORK,CARRY,MOVE], newName, {memory: {role: 'upgrader'}});
-        //}
-        if(builders.length < 4) {
+        if(upgraders.length < 1) {
+            var newName = 'Upgrader_' + Game.time;
+            console.log('Spawning new upgrader: ' + newName);
+            Game.spawns['Mother_Brain'].spawnCreep([WORK,CARRY,MOVE], newName, {memory: {role: 'upgrader'}});
+        }
+        else if(builders.length < 4) {
             var newName = 'Builder_' + Game.time;
             console.log('Spawning new builder: ' + newName);
             Game.spawns['Mother_Brain'].spawnCreep([WORK,CARRY,MOVE], newName, {memory: {role: 'builder'}});
