@@ -1,4 +1,4 @@
-/*
+/**
  * A base class that every creep will use.
  * Use: https://github.com/Garethp/Screeps/blob/master/role_prototype.js
  */
