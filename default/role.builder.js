@@ -5,47 +5,16 @@ var constants = require('constants');
 class BuilderRole extends CreepClass {
 
     /**
-     * See: https://www.digitalocean.com/community/tutorials/understanding-classes-in-javascript#defining-methods
+     * Changes state to harvesting state.
      */
-    main() {
-        switch (this.creep.memory.state) {
-            case constants.ACTIVITY_BUILD:
-                this.build()
-                break;
-            case constants.ACTIVITY_HARVEST:
-                this.harvest()
-                break;
-            default:
-                this.start_harvest();
-        }
-    }
-
-    endState() {
-        switch (this.creep.memory.state) {
-            case constants.ACTIVITY_BUILD:
-                this.end_build()
-                break;
-            case constants.ACTIVITY_HARVEST:
-                this.end_harvest()
-                break;
-        }
-        this.creep.memory.destination = null;
-    }
-
-    /**
-     * Changes state harvesting state.
-     */
-    start_harvest() {
-        this.endState();
-        this.creep.memory.state = constants.ACTIVITY_HARVEST;
+    task_noEnergyStart() {
+        super.task_noEnergyStart();
         this.creep.say('🔄 harvest');
     }
 
-    end_harvest() { }
-
-    harvest() {
+    task_noEnergy() {
         if (this.creep.carry.energy >= this.creep.carryCapacity) {
-            return this.start_build();
+            return this.task_fullEnergyStart();
         }
 
         let destination = this.getDestination(FIND_SOURCES);
@@ -64,20 +33,17 @@ class BuilderRole extends CreepClass {
     /**
      * Changes state building state.
      */
-    start_build() {
-        this.endState();
-        this.creep.memory.state = constants.ACTIVITY_BUILD;
+    task_fullEnergyStart() {
+        super.task_fullEnergyStart();
         this.creep.say('🚧 build');
     }
-
-    end_build() { }
 
     /**
      * Builds a structure.
      */
-    build() {
+    task_fullEnergy() {
         if (this.creep.carry.energy <= 0) {
-            return this.start_harvest();
+            return this.task_noEnergyStart();
         }
 
         let destination = this.getDestination(FIND_CONSTRUCTION_SITES);
@@ -88,7 +54,7 @@ class BuilderRole extends CreepClass {
             case OK:
                 break;
             default:
-                this.creep.memory.destination = null;
+                this.creep.memory.destinationId = null;
         }
     }
 
