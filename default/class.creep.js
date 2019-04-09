@@ -72,10 +72,6 @@ class CreepClass extends ActiveClass {
     }
 
     //Utility Methods - Do not override these
-    getClosest(targetList) {
-        return targetList[0];
-    }
-
     getDestination(activity, target) {
         switch (activity) {
             case constants.ACTIVITY_UPGRADE:
@@ -83,8 +79,7 @@ class CreepClass extends ActiveClass {
             default:
                 let destinationId = this.creep.memory.destinationId;
                 if (!destinationId || (destinationId == null)) {
-                    var targetList = this.creep.room.find(target);
-                    var closest = this.getClosest(targetList);
+                    var closest = this.creep.pos.findClosestByRange(target);
                     this.creep.memory.destinationId = closest.id;
                     return closest
                 }
@@ -124,7 +119,6 @@ class CreepClass extends ActiveClass {
                 break;
         }
 
-        //console.log("@CreepClass.actOrMove: " + destination + "; " + errorCode);
         switch (errorCode) {
             case ERR_NOT_IN_RANGE:
                 this.moveTo(destination)
@@ -137,16 +131,15 @@ class CreepClass extends ActiveClass {
     }
 
     transferOrMove(activity) {
-        console.log("@CreepClass.transferOrMove");
-        var targetList = this.creep.room.find(FIND_STRUCTURES, {
+        var target = this.creep.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_EXTENSION ||
                     structure.structureType == STRUCTURE_SPAWN ||
                     structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
             }
         });
-        if (targetList.length > 0) {
-            this.actOrMove(activity, this.getClosest(targetList))
+        if (target) {
+            this.actOrMove(activity, target)
         }
     }
 }
