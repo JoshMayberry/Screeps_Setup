@@ -8,16 +8,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Default", "Default", "{084D
 		class.active.js = class.active.js
 		class.base.js = class.base.js
 		class.creep.js = class.creep.js
-		class.harvester.js = class.harvester.js
+		class.gameobject.js = class.gameobject.js
 		class.profiled.js = class.profiled.js
-		helper.creep.js = helper.creep.js
-		..\default\main.js = ..\default\main.js
-		..\default\role.builder.js = ..\default\role.builder.js
-		..\default\role.harvester.js = ..\default\role.harvester.js
-		..\default\role.upgrader.js = ..\default\role.upgrader.js
-		..\default\role_prototype.js = ..\default\role_prototype.js
-		..\default\roleManager.js = ..\default\roleManager.js
-		..\default\spawner.js = ..\default\spawner.js
+		constants.js = constants.js
+		main.js = main.js
+		manager.creep.js = manager.creep.js
+		role.builder.js = role.builder.js
+		role.harvester.js = role.harvester.js
+		role.upgrader.js = role.upgrader.js
 	EndProjectSection
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Screeps-Typescript-Declarations", "..\..\..\..\..\..\source\repos\Screeps-Typescript-Declarations\", "{C49557CD-AA2B-42FE-BFC6-7AD619BB2291}"
@@ -38,6 +36,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Screeps-Typescript-Declarat
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "60150"
+		SlnRelativePath = "..\..\..\..\..\..\source\repos\Screeps-Typescript-Declarations\"
 	EndProjectSection
 EndProject
 Global

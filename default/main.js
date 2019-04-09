@@ -10,6 +10,9 @@
  * 
  * Toggle Comments
  * Use: https://marketplace.visualstudio.com/items?itemName=munyabe.ToggleComment
+ * 
+ * Emoji List
+ * Use: https://unicode.org/emoji/charts-12.0/emoji-list.html
  **/
 
 var CreepManager = require("manager.creep");

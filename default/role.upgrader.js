@@ -5,33 +5,41 @@ let constants = require('constants');
 class UpgraderRole extends CreepClass {
 
     /**
-     * See: https://www.digitalocean.com/community/tutorials/understanding-classes-in-javascript#defining-methods
+     * Changes state to harvesting state.
      */
-    main() {
-        if (this.creep.memory.upgrading && this.creep.carry.energy == 0) {
-            this.creep.memory.upgrading = false;
-            this.creep.say('🔄 harvest');
-        }
-        if (!this.creep.memory.upgrading && this.creep.carry.energy == this.creep.carryCapacity) {
-            this.creep.memory.upgrading = true;
-            this.creep.say('⚡ upgrade');
-        }
-
-        if (this.creep.memory.upgrading) {
-            if (this.creep.upgradeController(this.creep.room.controller) == ERR_NOT_IN_RANGE) {
-                this.creep.moveTo(this.creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
-            }
-        }
-        else {
-            var sources = this.creep.room.find(FIND_SOURCES);
-            if (this.creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                this.creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-            }
-        }
+    task_noEnergyStart() {
+        super.task_noEnergyStart();
+        this.creep.say('🔄 harvest');
     }
 
-    startHarvest() {
-        this.creep.say('🔄 harvest');
+    /**
+     * When there is no energy, harvest more.
+     */
+    task_noEnergy() {
+        if (this.creep.carry.energy >= this.creep.carryCapacity) {
+            return this.task_fullEnergyStart();
+        }
+
+        this.actOrMove(constants.ACTIVITY_HARVEST, FIND_SOURCES)
+    }
+
+    /**
+     * Changes state building state.
+     */
+    task_fullEnergyStart() {
+        super.task_fullEnergyStart();
+        this.creep.say('⚡ upgrade');
+    }
+
+    /**
+     * When energy is full, upgrade controller.
+     */
+    task_fullEnergy() {
+        if (this.creep.carry.energy <= 0) {
+            return this.task_noEnergyStart();
+        }
+
+        this.actOrMove(constants.ACTIVITY_UPGRADE, this.creep.room.controller)
     }
 }
 

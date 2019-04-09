@@ -72,25 +72,82 @@ class CreepClass extends ActiveClass {
     }
 
     //Utility Methods - Do not override these
-    getClosest(target) {
-        var targetList = this.creep.room.find(target);
-        console.log(targetList);
+    getClosest(targetList) {
         return targetList[0];
     }
 
-    getDestination(target) {
-        let destinationId = this.creep.memory.destinationId;
-        //destinationId = null;
-        if (!destinationId || (destinationId == null)) {
-            let closest = this.getClosest(target);
-            this.creep.memory.destinationId = closest.id;
-            return closest
+    getDestination(activity, target) {
+        switch (activity) {
+            case constants.ACTIVITY_UPGRADE:
+                return target;
+            default:
+                let destinationId = this.creep.memory.destinationId;
+                if (!destinationId || (destinationId == null)) {
+                    var targetList = this.creep.room.find(target);
+                    var closest = this.getClosest(targetList);
+                    this.creep.memory.destinationId = closest.id;
+                    return closest
+                }
+                return Game.getObjectById(destinationId);
         }
-        return Game.getObjectById(destinationId);
     }
 
-    moveTo(destination, stroke) {
-        this.creep.moveTo(destination, { visualizePathStyle: { stroke: stroke } });
+    getPathStroke() {
+        switch (this.creep.memory.state) {
+            case constants.TASK_NO_ENERGY:
+                return constants.PATH_NO_ENERGY;
+            case constants.TASK_FULL_ENERGY:
+                return constants.PATH_FULL_ENERGY;
+        }
+        throw new Error("Unknown State " + this.creep.memory.state);
+    }
+
+    moveTo(destination) {
+        this.creep.moveTo(destination, { visualizePathStyle: { stroke: this.getPathStroke() } });
+    }
+
+    actOrMove(activity, target) {
+        var destination = this.getDestination(activity, target);
+        var errorCode = null;
+        switch (activity) {
+            case constants.ACTIVITY_HARVEST:
+                errorCode = this.creep.harvest(destination);
+                break;
+            case constants.ACTIVITY_BUILD:
+                errorCode = this.creep.build(destination);
+                break;
+            case constants.ACTIVITY_TRANSFER_ENERGY:
+                errorCode = this.creep.transfer(destination, RESOURCE_ENERGY);
+                break;
+            case constants.ACTIVITY_UPGRADE:
+                errorCode = this.creep.upgradeController(destination);
+                break;
+        }
+
+        //console.log("@CreepClass.actOrMove: " + destination + "; " + errorCode);
+        switch (errorCode) {
+            case ERR_NOT_IN_RANGE:
+                this.moveTo(destination)
+                break;
+            case OK:
+                break;
+            default:
+                this.creep.memory.destinationId = null;
+        }
+    }
+
+    transferOrMove(activity) {
+        console.log("@CreepClass.transferOrMove");
+        var targetList = this.creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_EXTENSION ||
+                    structure.structureType == STRUCTURE_SPAWN ||
+                    structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
+            }
+        });
+        if (targetList.length > 0) {
+            this.actOrMove(activity, this.getClosest(targetList))
+        }
     }
 }
 
