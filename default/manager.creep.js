@@ -1,5 +1,6 @@
 ﻿/// <reference path="C:/Users/Kade/source/repos/Screeps-Typescript-Declarations/dist/screeps.d.ts"/>
 var ProfiledClass = require('class.profiled');
+var constants = require('constants');
 
 /**
   * Manages Creeps.
@@ -7,54 +8,128 @@ var ProfiledClass = require('class.profiled');
   * Use: https://github.com/dmleach/scroops/blob/master/helper.creep.js
   */
 class CreepManager extends ProfiledClass {
-    /**
-     * A list of creep classes
-     * See: https://stackoverflow.com/questions/22528967/es6-class-variable-alternatives/25036137#25036137
-     */
-    static get catalogue_creepClasses() {
-        return {
-            builder: 'role.builder',
-            harvester: 'role.harvester',
-            upgrader: 'role.upgrader',
+    static getCreepClassFileName(role) {
+        switch (role) {
+            case constants.ROLE_HARVESTER:
+                return "role.harvester";
+            case constants.ROLE_BUILDER:
+                return "role.builder";
+            case constants.ROLE_UPGRADER:
+                return "role.upgrader";
+            default:
+                throw new Error("Unknown Role: " + role);
+        }
+    }
+
+    static getCreepPriority(role) {
+        switch (role) {
+            case constants.ROLE_HARVESTER:
+                return 5;
+            case constants.ROLE_BUILDER:
+                return 5;
+            case constants.ROLE_UPGRADER:
+                return 6;
+            default:
+                throw new Error("Unknown Role: " + role);
+        }
+    }
+
+    static getCreepTargetQuantity(role) {
+        switch (role) {
+            case constants.ROLE_HARVESTER:
+                return 3;
+                break;
+            case constants.ROLE_BUILDER:
+                return 2;
+                break;
+            case constants.ROLE_UPGRADER:
+                return 1;
+                break;
+            default:
+                throw new Error("Unknown Role: " + role + "; " + [constants.ROLE_HARVESTER, constants.ROLE_BUILDER, constants.ROLE_UPGRADER]);
         }
     }
 
     static createCreepById(id) {
         let gameObject = Game.getObjectById(id);
-
         if (gameObject instanceof Creep) {
             return this.createCreepByName(gameObject.name);
         }
+        throw new Error("Game object is not a creep: " + gameObject);
     }
 
     static createCreepByName(name) {
         let creep = Game.creeps[name];
-
         if (!creep) {
             throw new Error('Could not find creep with name ' + name);
         }
 
         let creepClass = this.getCreepClassByObject(creep);
+        console.log("@createCreepByName " + creep);
         return new creepClass(creep);
     }
 
-    /**
-     * Returns the creep class to use for this creep.
-     * @param {Creep} creep - What creep to get a class for
-     * See: http://pietschsoft.com/post/2015/09/05/JavaScript-Basics-How-to-create-a-Dictionary-with-KeyValue-pairs#highlighter_173933
-     * See: https://stackoverflow.com/questions/1098040/checking-if-a-key-exists-in-a-javascript-object/1098955#1098955
-     */
+    static createCreepByObject(creep) {
+        let creepClass = this.getCreepClassByObject(creep);
+        console.log("@createCreepByObject " + creep);
+        return new creepClass(creep);
+    }
+
+    static createCreepByRole(role, creep = 1) {
+        let creepClass = this.getCreepClassByRole(role);
+        console.log("@createCreepByRole " + creep);
+        return new creepClass(creep);
+    }
+
     static getCreepClassByObject(creep) {
-        let role = creep.memory.role;
-        if (!role) {
-            role = "harvester";
-            creep.memory.role = role;
+        //switch (creep.memory.role) {
+        //    case "harvester":
+        //        creep.memory.role = constants.ROLE_HARVESTER;
+        //        break;
+        //    case "builder":
+        //        creep.memory.role = constants.ROLE_BUILDER;
+        //        break;
+        //    case "upgrader":
+        //        creep.memory.role = constants.ROLE_UPGRADER;
+        //        break;
+        //}
+
+        return this.getCreepClassByRole(creep.memory.role);
+    }
+
+    /**
+     * Returns the creep class to use for this role.
+     */
+    static getCreepClassByRole(role) {
+        return require(this.getCreepClassFileName(role));
+    }
+
+    static getBodyPartCost(partList) {
+        var cost = 0;
+        for (var i = 0, l = partList.length; i < l; i++) {
+            cost += BODYPART_COST[partList[i]]
         }
-        if (!(role in this.catalogue_creepClasses)) {
-            throw new Error("Could not find class for creep with role " + role);
+        return cost
+    }
+
+    static addToQueue(role) {
+        var partList = this.createCreepByRole(role).getParts()
+        var cost = this.getBodyPartCost(partList);
+        if (cost > Game.spawns['Mother_Brain'].energyCapacity) {
+            throw new Error("Cannot create creep that costs " + cost + " of " + Game.spawns['Mother_Brain'].energyCapacity);
         }
 
-        return require(this.catalogue_creepClasses[role]);
+        Memory.creepQueue.push({
+            "role": role,
+            "priority": this.getCreepPriority(role),
+            "partList": partList,
+            "cost": cost,
+        })
+
+        ////TODO: Sort by priority
+        //if (Memory.creepQueue.length > 1) {
+        //    Memory.creepQueue = _.max(Memory.creepQueue, (item) => item.priority) This returns an item, not a sorted list
+        //}
     }
 
     static spawn_creeps() {
@@ -64,31 +139,37 @@ class CreepManager extends ProfiledClass {
                 console.log('Clearing non-existing creep memory:', name);
             }
         }
-    
-        var builders   = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-        var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-        var upgraders  = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-        // console.log('Harvesters: ' + harvesters.length);
-    
-        //if(harvesters.length < 2) {
-        //    var newName = 'Drone_' + Game.time;
-        //    console.log('Spawning new harvester: ' + newName);
-        //    Game.spawns['Mother_Brain'].spawnCreep([WORK,CARRY,MOVE], newName, {memory: {role: 'harvester'}});
-        //}
-        if(upgraders.length < 1) {
-            var newName = 'Upgrader_' + Game.time;
-            console.log('Spawning new upgrader: ' + newName);
-            Game.spawns['Mother_Brain'].spawnCreep([WORK,CARRY,MOVE], newName, {memory: {role: 'upgrader'}});
+
+        //Memory.creepQueue = [];
+        //See: https://stackoverflow.com/questions/5852299/how-to-prevent-values-from-being-converted-to-strings-in-javascript/5852316#5852316
+        var roleList = new Array(constants.ROLE_HARVESTER, constants.ROLE_BUILDER, constants.ROLE_UPGRADER);
+        for (var i = 0, l = roleList.length; i < l; i++) {
+            var role = roleList[i];
+            var creepList = _.filter(Game.creeps, (creep) => creep.memory.role == role);
+            var targetQuantity = this.getCreepTargetQuantity(role);
+
+            if (creepList.length < targetQuantity) {
+                //var queueList = Memory.creepQueue;
+                var queueList = _.filter(Memory.creepQueue, (item) => item.role == role); //TO DO: This does not work
+                if (creepList.length + queueList.length < targetQuantity) {
+                    this.addToQueue(role)
+                }
+            }
         }
-        else if(builders.length < 4) {
-            var newName = 'Builder_' + Game.time;
-            console.log('Spawning new builder: ' + newName);
-            Game.spawns['Mother_Brain'].spawnCreep([WORK,CARRY,MOVE], newName, {memory: {role: 'builder'}});
-        } 
+
+        var spawn = Game.spawns['Mother_Brain'];
+        if (Memory.creepQueue.length >= 1) {
+            var nextItem = Memory.creepQueue[0]
+            if (nextItem.cost <= spawn.energy) {
+                var newName = 'Drone_' + Game.time;
+                console.log("Spawing creep: " + newName);
+                spawn.spawnCreep(nextItem.partList, newName, { memory: { role: nextItem.role } });
+            }
+        }
     
-        if(Game.spawns['Mother_Brain'].spawning) {
-            var spawningCreep = Game.creeps[Game.spawns['Mother_Brain'].spawning.name];
-            Game.spawns['Mother_Brain'].room.visual.text('🛠️' + spawningCreep.memory.role, Game.spawns['Mother_Brain'].pos.x + 1, Game.spawns['Mother_Brain'].pos.y, {align: 'left', opacity: 0.8});
+        if (spawn.spawning) {
+            var spawningCreep = Game.creeps[spawn.spawning.name];
+            spawn.room.visual.text('🛠️' + this.getCreepClassFileName(spawningCreep.memory.role), spawn.pos.x + 1, spawn.pos.y, {align: 'left', opacity: 0.8});
         }
     }
 
@@ -98,6 +179,7 @@ class CreepManager extends ProfiledClass {
         try {
             for (let creepName in Game.creeps) {
                 let creep = this.createCreepByName(creepName);
+                console.log('main_2:', creep.creep);
                 creep.main();
             }
         } catch (error) {

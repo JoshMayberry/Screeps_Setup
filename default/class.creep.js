@@ -11,6 +11,7 @@ class CreepClass extends ActiveClass {
 
     constructor(creep) {
         super();
+        console.log("@CreepClass.constructor " + creep);
         this.creep = creep;
     }
 
@@ -43,7 +44,7 @@ class CreepClass extends ActiveClass {
 
     //Overrideable Methods - Replace these if non-default output is desired
     getParts() {
-        return [Game.WORK, Game.CARRY, Game.MOVE];
+        return [WORK, CARRY, MOVE];
     }
 
     endState() {
@@ -59,6 +60,7 @@ class CreepClass extends ActiveClass {
     }
 
     main() {
+        console.log("@main ", + this.creep);
         switch (this.creep.memory.state) {
             case constants.TASK_NO_ENERGY:
                 this.task_noEnergy()
@@ -73,6 +75,7 @@ class CreepClass extends ActiveClass {
 
     //Utility Methods - Do not override these
     getDestination(activity, target) {
+        console.log("@getDestination ", + this.creep);
         switch (activity) {
             case constants.ACTIVITY_UPGRADE:
                 return target;
@@ -80,6 +83,7 @@ class CreepClass extends ActiveClass {
                 let destinationId = this.creep.memory.destinationId;
                 if (!destinationId || (destinationId == null)) {
                     var closest = this.creep.pos.findClosestByRange(target);
+                    console.log("@getDestination_2 ", + this.creep);
                     this.creep.memory.destinationId = closest.id;
                     return closest
                 }
