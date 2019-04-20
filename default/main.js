@@ -9,26 +9,17 @@
  * Use: https://steamcommunity.com/sharedfiles/filedetails/?id=1183135070#comment_content_1711815918575230079
  **/
 
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-var roleBuilder = require('role.builder');
-var spawner = require('spawner');
+var creepClass = require('class.creep');
+var spawnerClass = require('class.spawner');
 
-    
 module.exports.loop = function () {
-    spawner.spawn_creeps();
-    
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        creep.h
-        if (creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
+    spawnerClass.spawn_creeps();
+
+    try {
+        for (let creepName in Game.creeps) {
+            creepClass.main(Game.creeps[creepName]);
         }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-        if(creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
-        }
+    } catch (error) {
+        console.log("@main; Error: " + error + "\n" + error.stack);
     }
 }
