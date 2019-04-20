@@ -167,7 +167,7 @@ class CreepClass {
             case constants.ROLE_HARVESTER:
             case constants.ROLE_BUILDER:
             case constants.ROLE_UPGRADER:
-                return [WORK, CARRY, MOVE, MOVE, MOVE, MOVE];
+                return [WORK, CARRY, MOVE, MOVE, MOVE];
             default:
                 throw new Error("Unknown Role: " + role);
         }

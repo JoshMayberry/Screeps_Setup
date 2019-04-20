@@ -38,7 +38,7 @@ class SpawnerClass {
         }
 
         //Add queue item
-        console.log("Adding: " + role);
+        console.log("Adding to Queue: " + creepClass.getRoleName(role));
         spawner.room.memory.creepQueue.push({
             "role": role,
             "priority": creepClass.getPriority(role),
@@ -77,17 +77,24 @@ class SpawnerClass {
             if (creepList.length < targetQuantity) {
                 //Are there already enough in the queue?
                 var queueList = _.filter(spawner.room.memory.creepQueue, (item) => item.role == role);
-                if (creepList.length + queueList.length < targetQuantity) {
+
+                var offset = 0;
+                if (spawner.spawning) {
+                    offset += 1;
+                }
+
+                if (creepList.length + queueList.length + offset < targetQuantity) {
                     this.addToQueue(spawner, role);
                 }
             }
         }
 
         if (spawner.room.memory.creepQueue.length >= 1) {
-            var nextItem = _.max(spawner.room.memory.creepQueue, (item) => item.priority)
+            var nextItem = _.max(spawner.room.memory.creepQueue, (item) => item.priority);
             if (nextItem.cost <= spawner.energy) {
                 var newName = creepClass.getNewName(nextItem.role);
-                console.log("Spawing creep: " + newName + "; " + nextItem.role);
+                console.log("Spawing creep: " + newName + "; " + creepClass.getRoleName(nextItem.role));
+                spawner.room.memory.creepQueue.splice(spawner.room.memory.creepQueue.indexOf(nextItem), 1);
                 spawner.spawnCreep(nextItem.partList, newName, {
                     memory: {
                         role: nextItem.role,
