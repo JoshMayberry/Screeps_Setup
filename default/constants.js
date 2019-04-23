@@ -17,6 +17,12 @@ const PATH_NO_ENERGY = "#ffaa00";
 const PATH_FULL_ENERGY = "#ffffff";
 const pathList = new Array(PATH_NO_ENERGY, PATH_FULL_ENERGY);
 
+const PATTERN_NONE = 0;
+const PATTERN_JUST_TERRAIN = 1;
+const PATTERN_CHECKER_BOARD = 2;
+const patternList = new Array(PATTERN_NONE, PATTERN_JUST_TERRAIN, PATTERN_CHECKER_BOARD);
+
+const OBSTACLE_OBJECT_TYPES_INANIMATE = ["spawn", "source", "mineral", "controller", "wall", "constructedWall", "extension", "link", "storage", "tower", "observer", "powerSpawn", "powerBank", "lab", "terminal", "nuker"];
 
 module.exports = {
     ACTIVITY_HARVEST: ACTIVITY_HARVEST,
@@ -37,4 +43,11 @@ module.exports = {
     PATH_NO_ENERGY: PATH_NO_ENERGY,
     PATH_FULL_ENERGY: PATH_FULL_ENERGY,
     pathList: pathList,
+
+    PATTERN_NONE: PATTERN_NONE,
+    PATTERN_JUST_TERRAIN: PATTERN_JUST_TERRAIN,
+    PATTERN_CHECKER_BOARD: PATTERN_CHECKER_BOARD,
+    patternList: patternList,
+
+    OBSTACLE_OBJECT_TYPES_INANIMATE: OBSTACLE_OBJECT_TYPES_INANIMATE,
 }

@@ -56,13 +56,12 @@ class CreepClass {
                 var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (possibleTargetList.includes(structure.structureType) && (structure.energy < structure.energyCapacity));
-                        //return (structure.structureType == STRUCTURE_EXTENSION ||
-                        //    structure.structureType == STRUCTURE_SPAWN ||
-                        //    structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
                     }
                 });
                 if (target) {
                     this.actOrMove(creep, constants.ACTIVITY_TRANSFER_ENERGY, target);
+                } else {
+                    this.energyWithNoDestination(creep);
                 }
                 break;
             case constants.ROLE_BUILDER:
@@ -189,9 +188,9 @@ class CreepClass {
     static getTargetQuantity(role) {
         switch (role) {
             case constants.ROLE_HARVESTER:
-                return 3;
+                return 1;
             case constants.ROLE_BUILDER:
-                return 2;
+                return 3;
             case constants.ROLE_UPGRADER:
                 return 1;
             default:
@@ -204,7 +203,7 @@ class CreepClass {
             case constants.ROLE_HARVESTER:
             case constants.ROLE_BUILDER:
             case constants.ROLE_UPGRADER:
-                return 'Drone_' + Game.time;
+                return 'Drone_' + this.getRoleName(role) + "_" + Game.time;
             default:
                 throw new Error("Unknown Role: " + role);
         }
@@ -213,6 +212,7 @@ class CreepClass {
     //Utility Methods
     static getDestination(creep, activity, target) {
         switch (activity) {
+            case constants.ACTIVITY_TRANSFER_ENERGY:
             case constants.ACTIVITY_UPGRADE:
                 return target;
             default:
@@ -243,6 +243,13 @@ class CreepClass {
                 break;
             case constants.ACTIVITY_BUILD:
                 errorCode = creep.build(destination);
+
+                //If there are no build sites, repair something instead
+                switch (errorCode) {
+                    case ERR_INVALID_TARGET:
+                        this.energyWithNoDestination(creep);
+                        break;
+                }
                 break;
             case constants.ACTIVITY_TRANSFER_ENERGY:
                 errorCode = creep.transfer(destination, RESOURCE_ENERGY);
@@ -254,11 +261,33 @@ class CreepClass {
 
         switch (errorCode) {
             case ERR_NOT_IN_RANGE:
-                this.moveTo(creep, destination)
+                this.moveTo(creep, destination);
                 break;
             case OK:
                 break;
+            default:
+                this.energyWithNoDestination(creep);
         }
+    }
+
+    static energyWithNoDestination(creep) {
+        ////Move off the road if you are standing on one
+        //const look = creep.pos.look();
+        //look.forEach(function (lookObject) {
+        //    if (lookObject.type == LOOK_STRUCTURES) {
+        //        console.log("@3; " + lookObject.structure.structureType + "; " + STRUCTURE_ROAD + "; " + (lookObject.structure.structureType == STRUCTURE_ROAD));
+        //    }
+        //});
+
+        //Move to the idle flag
+        var target = Game.flags.IdleFlag;
+        if (!target) {
+            var spawnerClass = require('class.spawner');
+            var spawner = Game.spawns[spawnerClass.spawnerName];
+            target = new RoomPosition(spawner.pos.x - 3, spawner.pos.y - 3, spawner.pos.roomName).createFlag("IdleFlag");
+        }
+
+        this.moveTo(creep, target)
     }
 }
 

@@ -11,14 +11,25 @@
 
 var creepClass = require('class.creep');
 var spawnerClass = require('class.spawner');
+var basePlannerClass = require('class.basePlanner');
 
 module.exports.loop = function () {
-    spawnerClass.spawn_creeps();
-
     try {
         for (let creepName in Game.creeps) {
             creepClass.main(Game.creeps[creepName]);
         }
+    } catch (error) {
+        console.log("@main; Error: " + error + "\n" + error.stack);
+    }
+
+    try {
+        spawnerClass.main();
+    } catch (error) {
+        console.log("@main; Error: " + error + "\n" + error.stack);
+    }
+
+    try {
+        basePlannerClass.main();
     } catch (error) {
         console.log("@main; Error: " + error + "\n" + error.stack);
     }
