@@ -29,3 +29,5 @@ Screeps/packages/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0/.signa
 Screeps/packages/
 default/.vs/
 .sync
+old/
+tutorial-5/

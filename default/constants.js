@@ -11,7 +11,8 @@ const taskList = new Array(TASK_NO_ENERGY, TASK_FULL_ENERGY);
 const ROLE_HARVESTER = 0;
 const ROLE_BUILDER = 1;
 const ROLE_UPGRADER = 2;
-const roleList = new Array(ROLE_HARVESTER, ROLE_BUILDER, ROLE_UPGRADER);
+const ROLE_PIONEER = 2;
+const roleList = new Array(ROLE_HARVESTER, ROLE_BUILDER, ROLE_UPGRADER, ROLE_PIONEER);
 
 const PATH_NO_ENERGY = "#ffaa00";
 const PATH_FULL_ENERGY = "#ffffff";
@@ -38,6 +39,7 @@ module.exports = {
     ROLE_HARVESTER: ROLE_HARVESTER,
     ROLE_BUILDER: ROLE_BUILDER,
     ROLE_UPGRADER: ROLE_UPGRADER,
+    ROLE_PIONEER: ROLE_PIONEER,
     roleList: roleList,
 
     PATH_NO_ENERGY: PATH_NO_ENERGY,
