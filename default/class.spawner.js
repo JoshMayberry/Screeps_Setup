@@ -46,7 +46,6 @@ class SpawnerClass {
 			"cost": cost,
 		})
 
-		//TODO: Sort by priority
 		if (spawner.room.memory.creepQueue.length > 1) {
 			//Use: https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
 			spawner.room.memory.creepQueue = spawner.room.memory.creepQueue.sort((a, b) => (a.priority > b.priority) ? 1 : -1)
@@ -69,24 +68,12 @@ class SpawnerClass {
 
 		//Queue more creeps (Consider doing this upon death and bypass checks)
 		//See: https://stackoverflow.com/questions/5852299/how-to-prevent-values-from-being-converted-to-strings-in-javascript/5852316#5852316
-		for (var i = 0, l = constants.roleList.length; i < l; i++) {
-			//Does a new creep with that role need to be made?
-			var role = constants.roleList[i];
-			var creepList = _.filter(Game.creeps, (creep) => creep.memory.role == role);
-			var targetQuantity = creepClass.getTargetQuantity(role);
-
-			if (creepList.length < targetQuantity) {
-				//Are there already enough in the queue?
-				var queueList = _.filter(spawner.room.memory.creepQueue, (item) => item.role == role);
-
-				var offset = 0;
-				if (spawner.spawning) {
-					offset += 1;
-				}
-
-				if (creepList.length + queueList.length + offset < targetQuantity) {
-					this.addToQueue(spawner, role);
-				}
+		var role = creepClass.getNeededRole();
+		if (role != undefined) {
+			//Is there already one in the queue?
+			var queueList = _.filter(spawner.room.memory.creepQueue, (item) => item.role == role);
+			if (queueList < 1) {
+				this.addToQueue(spawner, role);
 			}
 		}
 

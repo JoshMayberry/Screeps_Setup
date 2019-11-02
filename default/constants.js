@@ -11,7 +11,7 @@ const taskList = new Array(TASK_NO_ENERGY, TASK_FULL_ENERGY);
 const ROLE_HARVESTER = 0;
 const ROLE_BUILDER = 1;
 const ROLE_UPGRADER = 2;
-const ROLE_PIONEER = 2;
+const ROLE_PIONEER = 3;
 const roleList = new Array(ROLE_HARVESTER, ROLE_BUILDER, ROLE_UPGRADER, ROLE_PIONEER);
 
 const PATH_NO_ENERGY = "#ffaa00";

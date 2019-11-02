@@ -9,16 +9,6 @@ var constants = require('constants');
 class CreepClass {
 	static main(creep) {
 		try {
-			//Check Job board
-			if (creep.memory.role != constants.ROLE_PIONEER) {
-				var numberOfCreeps = Object.keys(Game.creeps).length;
-				if (numberOfCreeps <= 2) {
-					creep.say("Pioneer!");
-					creep.memory.role = constants.ROLE_PIONEER;
-				}
-			}
-
-			//Do Job
 			switch (creep.memory.state) {
 				case constants.TASK_NO_ENERGY:
 					this.task_noEnergy(creep);
@@ -39,6 +29,9 @@ class CreepClass {
 		if (creep.carry.energy >= creep.carryCapacity) {
 			return this.task_fullEnergyStart(creep);
 		}
+
+		//Quick job board check
+		this.checkJobBoard(creep);
 
 		switch (creep.memory.role) {
 			case constants.ROLE_PIONEER:
@@ -66,7 +59,6 @@ class CreepClass {
 		switch (creep.memory.role) {
 			case constants.ROLE_PIONEER:
 				if ((creep.room.controller.level == 0) || (creep.room.controller.ticksToDowngrade < 1000)) {
-					console.log("test");
 					this.actOrMove(creep, constants.ACTIVITY_UPGRADE, creep.room.controller);
 					break;
 				}
@@ -149,13 +141,6 @@ class CreepClass {
 	static task_fullEnergyEnd(creep) {
 		switch (creep.memory.role) {
 			case constants.ROLE_PIONEER:
-				//Should I stop pioneering?
-				var numberOfCreeps = Object.keys(Game.creeps).length;
-				if (numberOfCreeps > 2) {
-					creep.say("No Pioneer");
-					creep.memory.role = constants.ROLE_HARVESTER;
-				}
-				break;
 			case constants.ROLE_HARVESTER:
 			case constants.ROLE_BUILDER:
 			case constants.ROLE_UPGRADER:
@@ -207,10 +192,11 @@ class CreepClass {
 		}
 	}
 
+	//Higher: More important
 	static getPriority(role) {
 		switch (role) {
 			case constants.ROLE_PIONEER:
-				return 0;
+				return 9;
 			case constants.ROLE_HARVESTER:
 				return 6;
 			case constants.ROLE_BUILDER:
@@ -225,6 +211,9 @@ class CreepClass {
 	static getTargetQuantity(role) {
 		switch (role) {
 			case constants.ROLE_PIONEER:
+				if (Object.keys(Game.creeps).length <= 2) {
+					return 2;
+				}
 				return 0;
 			case constants.ROLE_HARVESTER:
 				return 2;
@@ -256,6 +245,7 @@ class CreepClass {
 			case constants.ACTIVITY_UPGRADE:
 				return target;
 			default:
+				// console.log("@1");
 				return creep.pos.findClosestByRange(target)
 		}
 	}
@@ -268,6 +258,68 @@ class CreepClass {
 				return constants.PATH_FULL_ENERGY;
 		}
 		throw new Error("Unknown State " + creep.memory.state);
+	}
+
+	//Use: https://screeps.com/forum/topic/1781/get-number-of-creeps-with-x-role/5
+	static getNumberOfRole(targetRole) {
+		return _(Memory.creeps).filter({role: targetRole}).size();
+	}
+
+	//Use: https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
+	// static getNeededRole() {
+	// 	var root = this;
+	// 	var targetRole = null;
+	// 	constants.roleList.sort((a, b) => (this.getPriority(a) < this.getPriority(b)) ? 1 : -1).some(function (role) {
+	// 		if (root.getTargetQuantity(role) > root.getNumberOfRole(role)) {
+	// 			targetRole = role;
+	// 			return true;
+	// 		}
+	// 	});
+
+	// 	return targetRole;
+	// }
+	static getNeededRole(creep = null) {
+		var root = this;
+		var targetRole = null;
+		constants.roleList.sort((a, b) => (this.getPriority(a) < this.getPriority(b)) ? 1 : -1).some(function (role) {
+			//Do we have enough of this role?
+			if (root.getTargetQuantity(role) <= root.getNumberOfRole(role)) {
+				return false;
+			}
+
+
+			//Am I not able to have a role?
+			if (creep == null) {
+				targetRole = role;
+				return true;
+			}
+
+			var myRole = creep.memory.role;
+
+			//Do I have a role?
+			if (myRole == undefined) {
+				targetRole = role;
+				return true;
+			}
+
+			//Do I already have that role?
+			if (myRole == role) {
+				return true;
+			}
+
+			// console.log("@1", root.getPriority(creep.role), root.getPriority(role));
+
+			//Is my current role more important?
+			if (root.getPriority(myRole) > root.getPriority(role)) {
+				return true;
+			}
+
+
+			targetRole = role;
+			return true;
+		});
+
+		return targetRole;
 	}
 
 	static moveTo(creep, destination) {
@@ -303,7 +355,6 @@ class CreepClass {
 				break;
 		}
 
-		console.log(errorCode);
 		switch (errorCode) {
 			case ERR_NOT_IN_RANGE:
 				this.moveTo(creep, destination);
@@ -324,6 +375,10 @@ class CreepClass {
 		//    }
 		//});
 
+		if (this.checkJobBoard(creep)) {
+			return
+		}
+
 		//Move to the idle flag
 		var target = Game.flags.IdleFlag;
 		if (!target) {
@@ -333,6 +388,17 @@ class CreepClass {
 		}
 
 		this.moveTo(creep, target)
+	}
+
+	static checkJobBoard(creep) {
+		var targetRole = this.getNeededRole(creep);
+		if ((targetRole != null) && (creep.memory.role != targetRole)) {
+			console.log("Changing role from ", this.getRoleName(creep.memory.role), " to ", this.getRoleName(targetRole));
+			creep.say("-> " + targetRole);
+			creep.memory.role = targetRole;
+			return true;
+		}
+		return false;
 	}
 }
 
