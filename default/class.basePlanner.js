@@ -2,6 +2,7 @@
 var constants = require('constants');
 var spawnerClass = require('class.spawner');
 
+//See: https://github.com/Garethp/Screeps/blob/master/constructionPlanner.js
 class BasePlannerClass {
     //Use: https://stackoverflow.com/questions/8763125/get-array-of-objects-keys/10942889#10942889
     static printKeys(object) {

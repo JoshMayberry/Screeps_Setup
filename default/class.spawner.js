@@ -20,19 +20,11 @@ class SpawnerClass {
 		}
 	}
 
-	static getBodyPartCost(partList) {
-		var cost = 0;
-		for (var i = 0, l = partList.length; i < l; i++) {
-			cost += BODYPART_COST[partList[i]]
-		}
-		return cost;
-	}
-
 	//Use: https://stackoverflow.com/questions/30324353/screeps-memory-adding-how/30399398#30399398
 	static addToQueue(spawner, role) {
 		//Prepare queue item
 		var partList = creepClass.getParts(role)
-		var cost = this.getBodyPartCost(partList);
+		var cost = creepClass.getBodyPartCost(partList);
 		if (cost > spawner.energyCapacity) {
 			throw new Error("Cannot create creep that costs " + cost + " of " + spawner.energyCapacity);
 		}
@@ -45,6 +37,10 @@ class SpawnerClass {
 			"partList": partList,
 			"cost": cost,
 		})
+
+		if (role == constants.ROLE_SOLDIER) {
+			room.memory.soldiersNeeded -= 1;
+		}
 
 		if (spawner.room.memory.creepQueue.length > 1) {
 			//Use: https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
@@ -69,6 +65,9 @@ class SpawnerClass {
 		//Queue more creeps (Consider doing this upon death and bypass checks)
 		//See: https://stackoverflow.com/questions/5852299/how-to-prevent-values-from-being-converted-to-strings-in-javascript/5852316#5852316
 		var role = creepClass.getNeededRole();
+		if (role == null) {
+			role = creepClass.getOptionalRole();
+		}
 		if (role != undefined) {
 			//Is there already one in the queue?
 			var queueList = _.filter(spawner.room.memory.creepQueue, (item) => item.role == role);
